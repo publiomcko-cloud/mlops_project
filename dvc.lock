@@ -77,8 +77,8 @@ stages:
       size: 268222
     - path: src/model_training/train_model.py
       hash: md5
-      md5: 16882d4d228f2794f649f09e0a9c36fc
-      size: 5302
+      md5: 050f00ea89fd8b3921f5c952d47e55b7
+      size: 5950
     params:
       params.yaml:
         train.batch_size: 16
@@ -98,7 +98,7 @@ stages:
       size: 141
     - path: models/model.keras
       hash: md5
-      md5: 6103da8f254f60417bfe1188117ae8c3
+      md5: 64eabcf2f8304c2fc2d55d2e0e3cff91
       size: 79540
   evaluate:
     cmd: python -m src.model_evaluation.evaluate_model
