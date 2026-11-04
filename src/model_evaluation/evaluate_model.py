@@ -89,14 +89,13 @@ def evaluate_model(
 
         # Log metrics (MLflow)
         mlflow.log_metrics(
-		{
-			"test_accuracy": report["accuracy"],
-			"test_precision_weighted": report["weighted_avg"]["precision"],
-			"test_recall_weighted": report["weighted_avg"]["recall"],
-			"test_f1_weighted": report["weighted_avg"]["f1-score"],
-		}
-	)
-
+            {
+                "test_accuracy": float(report["accuracy"]),
+                "test_precision_weighted": float(report["weighted avg"]["precision"]),
+                "test_recall_weighted": float(report["weighted avg"]["recall"]),
+                "test_f1_weighted": float(report["weighted avg"]["f1-score"]),
+            }
+        )
 
 
 def main() -> None:
