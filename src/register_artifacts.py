@@ -7,16 +7,15 @@ from src.mlflow_config import configure_mlflow_tracking
 
 
 logger = logging.getLogger("src.register_artifacts")
-client = MlflowClient()
 
 
-def select_model_run(experiment_id: str):
+def select_model_run(client: MlflowClient, experiment_id: str):
     """Select a model using validation evidence only."""
     runs = client.search_runs(
         experiment_ids=[experiment_id],
         filter_string="tags.pipeline_stage = 'evaluated'",
         order_by=[
-            "metrics.selection_val_accuracy DESC",
+            "metrics.selection_val_loss ASC",
             "start_time DESC",
         ],
         max_results=1,
@@ -30,6 +29,8 @@ def select_model_run(experiment_id: str):
 
 def register_model() -> str:
     configure_mlflow_tracking()
+    client = MlflowClient()
+
     experiment = client.get_experiment_by_name("ml_classification")
     if experiment is None:
         raise RuntimeError(
@@ -37,14 +38,12 @@ def register_model() -> str:
             "Run the training pipeline first."
         )
 
-    selected_run = select_model_run(experiment.experiment_id)
+    selected_run = select_model_run(client, experiment.experiment_id)
     run_id = selected_run.info.run_id
-    selection_score = selected_run.data.metrics.get(
-        "selection_val_accuracy"
-    )
+    selection_score = selected_run.data.metrics.get("selection_val_loss")
 
     logger.info(
-        "Registering run %s selected by validation accuracy %s",
+        "Registering run %s selected by validation loss %s",
         run_id,
         selection_score,
     )
