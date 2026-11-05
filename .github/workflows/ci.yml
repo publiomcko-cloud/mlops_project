@@ -35,6 +35,7 @@ jobs:
             flask==2.2.5 \
             Werkzeug==2.3.8 \
             joblib==1.4.2 \
+            python-dotenv==1.1.0 \
             numpy==2.1.3 \
             pandas==2.2.3 \
             PyYAML==6.0.2 \
