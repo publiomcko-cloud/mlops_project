@@ -12,6 +12,7 @@ dependencies = [
     "mlflow==2.22.1",
     "flask==2.2.5",
     "dagshub==0.5.9",
+    "apache-airflow==2.10.5",
     "gunicorn==23.0.0",
     "python-dotenv==1.1.0",
     "numpy==2.1.3",
