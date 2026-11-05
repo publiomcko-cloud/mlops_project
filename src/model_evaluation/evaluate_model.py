@@ -8,6 +8,8 @@ import tensorflow as tf
 from sklearn.metrics import classification_report, confusion_matrix
 from sklearn.preprocessing import OneHotEncoder
 
+from src.mlflow_config import configure_mlflow_tracking
+
 
 logger = logging.getLogger("src.model_evaluation.evaluate_model")
 
@@ -44,6 +46,7 @@ def evaluate_model(
     y_true: pd.Series,
     run_id: str,
 ) -> dict:
+    configure_mlflow_tracking()
     y_pred_proba = model.predict(X)
     y_pred = encoder.inverse_transform(y_pred_proba).ravel()
 
