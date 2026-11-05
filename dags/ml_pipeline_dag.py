@@ -50,7 +50,13 @@ with DAG(
     create_app_image = BashOperator(
         task_id="create_app_image",
         cwd=project_root,
-        bash_command = "docker build -t ml-classifier ."
+        #bash_command = "docker build -t ml-classifier ."
+        bash_command="""
+        docker build -t ${DOCKER_HUB_USERNAME}/ml-classifier .
+        echo ${DOCKER_HUB_TOKEN} | docker login -u ${DOCKER_HUB_USERNAME} --password-stdin
+        docker push ${DOCKER_HUB_USERNAME}/ml-classifier
+        """
+
     )
 
     # Set dependencies
