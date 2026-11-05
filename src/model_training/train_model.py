@@ -156,18 +156,18 @@ def train_model(
         save_training_artifacts(model, encoder)
         mlflow.log_artifact("artifacts/[target]_one_hot_encoder.joblib")
 
-        val_accuracy = history.history.get("val_accuracy", [])
-        best_val_accuracy = max(val_accuracy) if val_accuracy else None
-        if best_val_accuracy is not None:
-            mlflow.log_metric("selection_val_accuracy", float(best_val_accuracy))
+        val_loss = history.history.get("val_loss", [])
+        best_val_loss = min(val_loss) if val_loss else None
+        if best_val_loss is not None:
+            mlflow.log_metric("selection_val_loss", float(best_val_loss))
 
         metrics = {
             metric: float(values[-1])
             for metric, values in history.history.items()
             if values
         }
-        if best_val_accuracy is not None:
-            metrics["best_val_accuracy"] = float(best_val_accuracy)
+        if best_val_loss is not None:
+            metrics["best_val_loss"] = float(best_val_loss)
 
         with open("metrics/training.json", "w", encoding="utf-8") as f:
             json.dump(metrics, f, indent=2)
