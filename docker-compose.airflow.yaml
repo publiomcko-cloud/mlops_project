@@ -1,0 +1,50 @@
+services:
+  postgres:
+    image: postgres:13
+    environment:
+      - POSTGRES_USER=airflow
+      - POSTGRES_PASSWORD=airflow
+      - POSTGRES_DB=airflow
+    networks:
+      - backend
+
+  dind:
+    image: docker:24.0.5-dind
+    privileged: true
+    expose:
+      - 2375
+    environment:
+      - DOCKER_TLS_CERTDIR=
+    networks:
+      - backend
+
+  airflow:
+    build:
+      context: .
+      dockerfile: Dockerfile.airflow
+    restart: always
+    depends_on:
+      - postgres
+      - dind
+    ports:
+      - "8080:8080"
+    environment:
+      - AIRFLOW__CORE__EXECUTOR=LocalExecutor
+      - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://airflow:airflow@postgres/airflow
+      - AIRFLOW__CORE__LOAD_EXAMPLES=false
+      - AIRFLOW__CORE__DAGS_FOLDER=/home/airflow/mlops_project/dags
+      - DOCKER_HOST=tcp://dind:2375
+      - DOCKER_HUB_USERNAME=${DOCKER_HUB_USERNAME}
+      - DOCKER_HUB_TOKEN=${DOCKER_HUB_TOKEN}
+      - DAGSHUB_USER_TOKEN=${DAGSHUB_USER_TOKEN}
+    networks:
+      - backend
+    command: bash -c "
+      airflow db init &&
+      airflow users create --username admin --password admin --firstname admin --lastname admin --role Admin --email admin@example.com &&
+      (airflow scheduler &) &&
+      airflow webserver
+      "
+
+networks:
+  backend:
