@@ -3,6 +3,8 @@ import logging
 import mlflow
 from mlflow.tracking import MlflowClient
 
+from src.mlflow_config import configure_mlflow_tracking
+
 
 logger = logging.getLogger("src.register_artifacts")
 client = MlflowClient()
@@ -27,6 +29,7 @@ def select_model_run(experiment_id: str):
 
 
 def register_model() -> str:
+    configure_mlflow_tracking()
     experiment = client.get_experiment_by_name("ml_classification")
     if experiment is None:
         raise RuntimeError(
