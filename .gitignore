@@ -1,13 +1,17 @@
 .conda/
+.venv/
+
 # Python
 ml_classifier.egg-info
 __pycache__
+.pytest_cache
 
 # Data
 data/**/*.csv
 
 # Artifacts
 artifacts/*.joblib
+artifacts/*.json
 
 # Models
 models/*.keras
@@ -15,8 +19,9 @@ models/*.keras
 # Metrics
 metrics/*.json
 
-#mlflow
+# MLflow
 mlruns
 
 # Project
 .env
+.env.*
