@@ -1,21 +1,20 @@
-# Python
+# Git and local environments
 .git
 .conda
+.venv
 ml_classifier.egg-info
 __pycache__
+.pytest_cache
 
-# Data
+# Data and experiment outputs not needed by the web image
 data/**/*.csv
-
-# Metrics
 metrics/*.json
-
-# DVC
-.dvc
-
-# MLflow
 mlruns
 
-# Project
-artifacts/*
-models/*
+# DVC metadata is not needed at runtime
+.dvc
+.dvcignore
+
+# Secrets and local configuration
+.env
+.env.*

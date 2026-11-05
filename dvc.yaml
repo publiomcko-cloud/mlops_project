@@ -39,6 +39,7 @@ stages:
     outs:
       - models/model.keras
       - artifacts/[target]_one_hot_encoder.joblib
+      - artifacts/training_run.json
     metrics:
       - metrics/training.json
     params:
@@ -48,6 +49,7 @@ stages:
       - train.dropout_rate
       - train.epochs
       - train.batch_size
+      - train.random_seed
 
   evaluate:
     cmd: python -m src.model_evaluation.evaluate_model
@@ -55,7 +57,7 @@ stages:
       - src/model_evaluation/evaluate_model.py
       - models/model.keras
       - artifacts/[target]_one_hot_encoder.joblib
+      - artifacts/training_run.json
       - data/processed/test_processed.csv
     metrics:
       - metrics/evaluation.json
-

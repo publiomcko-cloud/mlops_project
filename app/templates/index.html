@@ -1,29 +1,49 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Breast Cancer Prediction</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>ML Classifier Portfolio Demo</title>
     <style>
-        body { font-family: Arial, sans-serif; margin: 40px; }
+        body { font-family: Arial, sans-serif; margin: 40px; line-height: 1.5; }
         .container { max-width: 800px; margin: 0 auto; }
-        .error { color: red; }
-        .success { color: green; }
+        .error { color: #b00020; }
+        .success { color: #176b2c; }
+        .notice { background: #f3f4f6; padding: 12px; border-radius: 6px; }
+        input[type="submit"] { margin-left: 8px; }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>Breast Cancer Prediction Interface</h1>
+    <main class="container">
+        <h1>Breast Cancer Classifier</h1>
+        <p class="notice">
+            Portfolio and educational demonstration only. This application is not a
+            medical device and must not be used for clinical diagnosis or treatment.
+        </p>
+
+        {% if model_ready %}
+        <p class="success">Model status: ready</p>
+        {% else %}
+        <p class="error">
+            Model status: unavailable. Restore DVC artifacts or configure MLflow
+            before requesting predictions.
+        </p>
+        {% endif %}
+
         <form action="/upload" method="post" enctype="multipart/form-data">
-            <p>Upload a CSV file with breast cancer features:</p>
-            <input type="file" name="file" accept=".csv" required>
-            <input type="submit" value="Get Predictions">
+            <p>Upload a UTF-8 CSV containing the 30 expected dataset features.</p>
+            <input type="file" name="file" accept=".csv,text/csv" required>
+            <input type="submit" value="Get Predictions" {% if not model_ready %}disabled{% endif %}>
         </form>
+
         {% if error %}
         <p class="error">{{ error }}</p>
         {% endif %}
+
         {% if predictions %}
-        <h2>Predictions:</h2>
+        <h2>Predictions</h2>
         <pre>{{ predictions }}</pre>
         {% endif %}
-    </div>
+    </main>
 </body>
 </html>

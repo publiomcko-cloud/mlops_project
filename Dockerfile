@@ -1,16 +1,19 @@
 FROM python:3.12-slim
 
-# Copy the entire project
-COPY . mlops_project/
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PIP_NO_CACHE_DIR=1
 
-# Install the package with dependencies
-RUN pip install ./mlops_project
+WORKDIR /app
 
-# Set the working directory
-WORKDIR /mlops_project
+COPY . .
 
-# Expose the port gunicorn will listen on
+RUN pip install --upgrade pip \
+    && pip install .
+
 EXPOSE 5001
 
-# Run gunicorn
-CMD ["gunicorn", "--bind=0.0.0.0:5001", "app.main:app"]
+HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
+    CMD python -c "import urllib.request; urllib.request.urlopen('http://127.0.0.1:5001/health', timeout=3)" || exit 1
+
+CMD ["gunicorn", "--bind=0.0.0.0:5001", "--workers=2", "--threads=2", "app.main:app"]
