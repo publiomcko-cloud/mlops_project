@@ -1,170 +1,320 @@
-# ML Classifier - Breast Cancer Prediction
+# ML Classifier - Reproducible MLOps Portfolio Project
 
-A machine learning project that builds and deploys a neural network classifier for breast cancer prediction using the scikit-learn breast cancer dataset.
+[![CI](https://github.com/publiomcko-cloud/mlops_project/actions/workflows/ci.yml/badge.svg)](https://github.com/publiomcko-cloud/mlops_project/actions/workflows/ci.yml)
 
-## Project Structure
+A reproducible machine-learning project that trains, evaluates, tracks, packages, and serves a neural-network classifier using the scikit-learn breast cancer dataset.
 
-```
-/mlops_project
-├── app/                          # Web application
-│   ├── __init__.py               # Package marker
-│   ├── main.py                   # Flask app with prediction API
-│   └── templates/                # HTML templates for web UI
-│       └── index.html            # Web interface for predictions
-├── artifacts/                    # Preprocessing artifacts
-├── data/                         # Data storage
-│   ├── preprocessed/             # Cleaned data
-│   ├── processed/                # Feature-engineered data
-│   └── raw/                      # Raw dataset
-├── metrics/                      # Model performance metrics
-├── models/                       # Trained model
-├── src/                          # Source code modules
-│   ├── __init__.py               # Package marker
-│   ├── data_loading/             # Data loading utilities
-│   │   ├── __init__.py           # Package marker
-│   │   └── load_data.py          # Dataset loading and preparation
-│   ├── data_preprocessing/       # Data cleaning and splitting
-│   │   ├── __init__.py           # Package marker
-│   │   └── preprocess_data.py    # Data cleaning and imputation
-│   ├── feature_engineering/      # Feature transformation utilities
-│   │   ├── __init__.py           # Package marker
-│   │   └── engineer_features.py  # Feature scaling and transformation
-│   ├── model_evaluation/         # Model evaluation scripts
-│   │   ├── __init__.py           # Package marker
-│   │   └── evaluate_model.py     # Model performance evaluation
-│   └── model_training/           # Model training scripts
-│       ├── __init__.py           # Package marker
-│       └── train_model.py        # Neural network training
-├── .dockerignore                 # Docker ignore rules
-├── Dockerfile                    # Docker build instructions
-├── params.yaml                   # Configuration parameters
-├── pyproject.toml                # Python dependencies and project metadata
-└── README.md                     # Project documentation
-```
+The project is designed as an MLOps portfolio demonstration rather than only a notebook or isolated model-training exercise. It includes a staged DVC pipeline, MLflow experiment tracking and model registration, deterministic preprocessing, a Flask inference service, Docker packaging, automated tests, and GitHub Actions CI.
 
-## Features
+> Portfolio and educational use only. This project is not a medical device and must not be used for clinical diagnosis, treatment, or patient decision-making.
 
-- **Data Pipeline**: Complete ETL pipeline from raw data to model-ready features
-- **Neural Network**: TensorFlow/Keras deep learning model with configurable architecture
-- **Web Interface**: Flask-based web application for making predictions
-- **Artifact Management**: Serialized models and preprocessors for deployment
-- **Evaluation Metrics**: Comprehensive model performance analysis
+## What this project demonstrates
 
-## Dependencies
+- Reproducible ML pipelines with DVC
+- Experiment and artifact tracking with MLflow
+- Deterministic train/test preprocessing boundaries
+- TensorFlow/Keras model training
+- Validation-based model selection
+- Held-out test evaluation
+- Model registry integration
+- Flask inference service
+- Containerization with Docker and Gunicorn
+- Health and readiness endpoints
+- Upload validation and bounded inference inputs
+- Automated tests and CI
 
-The project requires Python 3.12+ and the packages informed in `pyproject.toml`.
+## Architecture
+
+~~~mermaid
+flowchart LR
+    A[scikit-learn dataset] --> B[DVC load_data]
+    B --> C[Train/Test Split]
+    C --> D[Train-fitted Imputer]
+    D --> E[Train-fitted StandardScaler]
+    E --> F[TensorFlow Training]
+    F --> G[MLflow Run]
+    F --> H[Validation Metrics]
+    G --> I[Held-out Test Evaluation]
+    H --> J[Model Selection]
+    I --> K[Test Metrics]
+    J --> L[MLflow Model Registry]
+    F --> M[Local DVC Artifacts]
+    M --> N[Flask Inference Service]
+    L --> N
+    N --> O[Gunicorn / Docker]
+~~~
+
+## Evaluation methodology
+
+The project separates model selection from final test evaluation.
+
+1. The raw dataset is split into training and held-out test sets before preprocessing.
+2. Imputation and scaling are fitted only on the training partition.
+3. Training uses an internal validation split.
+4. Validation accuracy is recorded as the model-selection signal.
+5. The held-out test set is evaluated only after training.
+6. Test accuracy is recorded as final evaluation evidence and is not used to choose the registered model.
+
+This avoids selecting a model directly against the test set.
+
+## Project structure
+
+~~~text
+mlops_project/
+├── .github/workflows/ci.yml
+├── app/
+│   ├── main.py
+│   └── templates/index.html
+├── artifacts/
+├── data/
+│   ├── raw/
+│   ├── preprocessed/
+│   └── processed/
+├── metrics/
+├── models/
+├── src/
+│   ├── data_loading/
+│   ├── data_preprocessing/
+│   ├── feature_engineering/
+│   ├── model_training/
+│   ├── model_evaluation/
+│   └── register_artifacts.py
+├── tests/
+│   ├── test_app.py
+│   └── test_pipeline.py
+├── dvc.yaml
+├── dvc.lock
+├── params.yaml
+├── Dockerfile
+└── pyproject.toml
+~~~
+
+## Requirements
+
+- Python 3.12+
+- Git
+- Optional: Docker
+- Optional: access to the configured DVC remote for restoring generated artifacts
 
 ## Installation
 
-1. Clone the repository:
-```bash
-git clone https://github.com/publiomcko-cloud/mlops_project
+~~~bash
+git clone https://github.com/publiomcko-cloud/mlops_project.git
 cd mlops_project
-```
 
-2. Install dependencies:
-```bash
-pip install -e .
-```
+python -m venv .venv
+~~~
 
-## Configuration
+Linux/macOS:
 
-Model hyperparameters and data processing settings are configured in `params.yaml`.
+~~~bash
+source .venv/bin/activate
+~~~
 
-## Model Architecture
+Windows PowerShell:
 
-The neural network consists of a multilayer perceptron with 2 hidden layers.
+~~~powershell
+.venv\Scripts\Activate.ps1
+~~~
 
-## Artifacts
+Install the project and development dependencies:
 
-The training process generates the following files:
+~~~bash
+python -m pip install --upgrade pip
+pip install -e ".[dev]"
+~~~
 
-In the `models/` directory:
-- `model.keras`: Trained TensorFlow model
+Apache Airflow is optional and intentionally excluded from the default runtime dependencies:
 
-In the `artifacts/` directory:
-- `[features]_mean_imputer.joblib`: Feature imputer for missing values
-- `[features]_scaler.joblib`: Standard scaler for feature normalization
-- `[target]_one_hot_encoder.joblib`: One-hot encoder for target labels
+~~~bash
+pip install -e ".[orchestration]"
+~~~
 
-## Metrics
+## Reproduce the ML pipeline
 
-Model performance metrics are saved to:
-- `metrics/training.json`: Training history and validation metrics
-- `metrics/evaluation.json`: Test set performance and confusion matrix
+The complete pipeline is declared in dvc.yaml.
 
-## Development
+~~~bash
+dvc repro
+~~~
 
-The project follows a modular structure with separate concerns:
-- **Data Loading**: Fetches and saves raw breast cancer dataset
-- **Preprocessing**: Handles missing values and data splitting
-- **Feature Engineering**: Applies scaling transformations
-- **Model Training**: Builds and trains the neural network
-- **Model Evaluation**: Generates performance metrics
-- **Web Application**: Provides prediction interface
+Equivalent stages are:
 
-Each module can be run independently and saves its outputs for the next stage in the pipeline.
-
-## Usage
-
-### Training the Model
-
-Run the complete ML pipeline (for proper logging to the terminal, run as modules with `python -m`):
-
-```bash
-# 1. Load and prepare raw data
+~~~bash
 python -m src.data_loading.load_data
-
-# 2. Preprocess data (imputation, train/test split)
 python -m src.data_preprocessing.preprocess_data
-
-# 3. Engineer features (scaling)
 python -m src.feature_engineering.engineer_features
-
-# 4. Train the neural network model
 python -m src.model_training.train_model
-
-# 5. Evaluate model performance
 python -m src.model_evaluation.evaluate_model
-```
+~~~
 
-### Running the Web Application
+Inspect DVC metrics with:
 
-#### Flask
+~~~bash
+dvc metrics show
+~~~
 
-After training the model, start the Flask web server:
+The training stage writes explicit MLflow run metadata to artifacts/training_run.json. The evaluation stage uses that exact run identifier instead of guessing the latest MLflow run.
 
-```bash
+## Model registration
+
+Registration is intentionally separate from test evaluation.
+
+~~~bash
+python -m src.register_artifacts
+~~~
+
+The registration code selects an evaluated run using validation accuracy, not test accuracy.
+
+## DVC artifacts
+
+Generated datasets, preprocessing artifacts, metrics, and trained models are not committed directly to Git.
+
+If the configured remote contains the latest artifacts:
+
+~~~bash
+dvc pull
+~~~
+
+The repository DVC configuration points to the project remote on DagsHub. Credentials, when required by the remote or MLflow tracking server, must be supplied through local environment configuration and must never be committed.
+
+## MLflow
+
+Without an external tracking URI, MLflow can use its local tracking store.
+
+For a remote tracking server, configure the environment before training or inference, for example:
+
+~~~bash
+export MLFLOW_TRACKING_URI=https://example-mlflow-server
+~~~
+
+For registry-based inference, the application accepts:
+
+~~~bash
+export MODEL_SOURCE=mlflow
+export MLFLOW_MODEL_URI=models:/model/latest
+~~~
+
+MODEL_SOURCE supports:
+
+- auto: prefer local DVC artifacts, otherwise try MLflow
+- local: require local model and preprocessing artifacts
+- mlflow: require the configured MLflow model URI
+
+## Run the web application
+
+Restore or generate artifacts first:
+
+~~~bash
+dvc pull
+~~~
+
+or:
+
+~~~bash
+dvc repro
+~~~
+
+Then start Flask:
+
+~~~bash
 python app/main.py
-```
+~~~
 
-The application will be available at `http://localhost:5001`
+Open:
 
-### Docker
+~~~text
+http://localhost:5001
+~~~
 
-You can instead build and run the application using Docker:
+Operational endpoints:
 
-#### Build the Docker image
+- GET /health returns process health independently of model availability.
+- GET /ready returns HTTP 200 only when the inference model is available.
+- POST /upload accepts a CSV file for prediction.
 
-```bash
+The service can stay observable even if model loading fails. In that state /health remains available while /ready returns HTTP 503.
+
+## Input controls
+
+The inference endpoint enforces:
+
+- CSV extension validation
+- UTF-8 parsing
+- exact required feature validation
+- a default 2 MB upload limit
+- a default maximum of 10,000 prediction rows
+- generic client-facing errors for unexpected failures
+
+The limits can be configured with:
+
+~~~bash
+export MAX_UPLOAD_BYTES=2097152
+export MAX_PREDICTION_ROWS=10000
+~~~
+
+## Docker
+
+The Docker image can include local DVC-generated model artifacts. Restore or generate them before building:
+
+~~~bash
+dvc pull
 docker build -t ml-classifier .
-```
+docker run --rm -p 5001:5001 ml-classifier
+~~~
 
-#### Run the Docker container
+If the image is built without model artifacts, the web process still starts for observability, but /ready reports the service as unavailable until a usable model source is configured.
 
-```bash
-docker run -p 5001:5001 ml-classifier
-```
+The container includes a health check against /health and serves the application through Gunicorn.
 
-The web application will be available at `http://localhost:5001`.
+## Tests
 
-### Making Predictions
+Run locally with:
 
-1. **Web Interface**: Upload a CSV file with breast cancer features through the web interface
-2. **API**: The `/upload` endpoint accepts CSV files and returns predictions
+~~~bash
+python -m pytest
+~~~
 
-#### Required CSV Format
+The current test suite covers:
 
-Your CSV file must contain all 30 breast cancer features with exact column names:
-- mean radius, mean texture, mean perimeter, mean area, mean smoothness, etc.
-- See `sklearn.datasets.load_breast_cancer().feature_names` for the complete list
+- process health versus model readiness
+- valid CSV prediction requests
+- missing feature rejection
+- prediction row limits
+- suppression of internal error details
+- train-only imputer fitting
+- train-only scaler fitting
+- DVC training/evaluation run linkage
+
+## Continuous integration
+
+GitHub Actions runs on pushes to main, feature/fix branches, and pull requests targeting main.
+
+CI performs:
+
+- Python source compilation
+- DVC YAML parsing
+- automated tests
+
+The CI dependency set is intentionally lightweight so routine source validation does not need to install TensorFlow or run model training.
+
+## Model and dataset
+
+Dataset: scikit-learn Breast Cancer Wisconsin Diagnostic dataset.
+
+Model: feed-forward neural network with two hidden layers and dropout. Hyperparameters are declared in params.yaml.
+
+The dataset is suitable for demonstrating an ML engineering workflow because it is deterministic, public, small enough for reproducible development, and requires no private patient data.
+
+## Reproducibility notes
+
+- Dataset perturbation uses a fixed seed.
+- Train/test splitting uses a configured random seed.
+- TensorFlow random state is configured from params.yaml.
+- DVC tracks pipeline dependencies and outputs.
+- MLflow records parameters, validation metrics, test metrics, and model artifacts.
+- Evaluation is attached to the exact training run through persisted run metadata.
+
+## Scope
+
+This repository demonstrates MLOps engineering practices on a compact educational dataset. It is not intended to claim clinical validity, production medical approval, or real-world diagnostic performance.
