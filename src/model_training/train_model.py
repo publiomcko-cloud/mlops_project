@@ -9,10 +9,10 @@ import pandas as pd
 import tensorflow as tf
 import yaml
 from sklearn.preprocessing import OneHotEncoder
-from tensorflow.keras.callbacks import EarlyStopping
-from tensorflow.keras.layers import Dense, Dropout
-from tensorflow.keras.models import Sequential
-from tensorflow.keras.optimizers import Adam
+from keras.callbacks import EarlyStopping
+from keras.layers import Dense, Dropout
+from keras.models import Sequential
+from keras.optimizers import Adam
 
 logger = logging.getLogger("src.model_training.train_model")
 
