@@ -51,7 +51,7 @@ The project separates model selection from final test evaluation.
 1. The raw dataset is split into training and held-out test sets before preprocessing.
 2. Imputation and scaling are fitted only on the training partition.
 3. Training uses an internal validation split.
-4. Validation accuracy is recorded as the model-selection signal.
+4. Validation loss is recorded as the model-selection signal, matching the early-stopping criterion.
 5. The held-out test set is evaluated only after training.
 6. Test accuracy is recorded as final evaluation evidence and is not used to choose the registered model.
 
@@ -164,7 +164,7 @@ Registration is intentionally separate from test evaluation.
 python -m src.register_artifacts
 ~~~
 
-The registration code selects an evaluated run using validation accuracy, not test accuracy.
+The registration code selects an evaluated run using validation loss, not test accuracy.
 
 ## DVC artifacts
 
