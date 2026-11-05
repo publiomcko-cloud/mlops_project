@@ -14,6 +14,8 @@ from keras.models import Sequential
 from keras.optimizers import Adam
 from sklearn.preprocessing import OneHotEncoder
 
+from src.mlflow_config import configure_mlflow_tracking
+
 
 logger = logging.getLogger("src.model_training.train_model")
 
@@ -112,6 +114,7 @@ def train_model(
     train_data: pd.DataFrame,
     params: dict[str, int | float],
 ) -> str:
+    configure_mlflow_tracking()
     experiment = mlflow.set_experiment("ml_classification")
     mlflow.keras.autolog()
 
