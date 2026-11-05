@@ -75,6 +75,9 @@ class ModelService:
         self.target_encoder = joblib.load(paths["encoder"])
 
     def _load_mlflow_artifacts(self) -> None:
+        from src.mlflow_config import configure_mlflow_tracking
+
+        configure_mlflow_tracking()
         import mlflow
 
         model_uri = os.getenv("MLFLOW_MODEL_URI", "models:/model/latest")
