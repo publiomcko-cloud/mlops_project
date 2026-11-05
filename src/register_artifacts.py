@@ -35,7 +35,12 @@ def register_model() -> None:
     logger.info("Registering model from latest MLflow run")
 
     # Get the experiment ID for the 'ml_classification' experiment
-    experiment_id = client.get_experiment_by_name("ml_classification").experiment_id
+    experiment = client.get_experiment_by_name("ml_classification")
+    if experiment is None:
+        mlflow.create_experiment("ml_classification")
+        experiment = client.get_experiment_by_name("ml_classification")
+
+    experiment_id = experiment.experiment_id
 
     # Get the latest run from the experiment
     latest_run = client.search_runs(
